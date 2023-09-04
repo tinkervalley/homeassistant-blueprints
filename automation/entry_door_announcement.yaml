@@ -1,0 +1,41 @@
+blueprint:
+  name: Entry Door Announcement
+  domain: automation
+  input:
+    contact_sensors:
+      name: Contact Sensors
+      description: Choose your contact sensors.
+      selector:
+        entity:
+          multiple: true
+          domain:
+            - binary_sensor
+            - sensor
+            - cover
+
+    action:
+      name: Action
+      description: The ID of the script you'd like to run.
+
+
+alias: Entry Audio Announcement
+description: ""
+
+mode: single
+
+
+trigger:
+  - platform: state
+    entity_id: !input contact_sensors
+    from: "off"
+    to: "on"
+
+  - platform: state
+    entity_id: !input contact_sensors
+    from: "closed"
+    to: "open"
+
+action:
+  - service: !input action
+    data:
+      message: "{{ state_attr(trigger.to_state.entity_id, 'friendly_name') }}"
