@@ -1,0 +1,58 @@
+blueprint:
+  name: Speaker Announcement
+  domain: script
+  description: This script will play a notification sound on your speakers, and then make a TTS announcement with the text passed to the script in a "message" variable.
+
+  input:
+    speakers:
+      name: Speakers
+      description: Select your media players for the announcements. Google Home speakers work the best.
+      selector:
+        entity:
+          multiple: true
+          domain: media_player
+
+    sound:
+      name: Notification Sound
+      description: "Select the sound that should play before the announcement. Example: media-source://media_source/local/yourfile.mp3"
+
+    sound_duration:
+      name: Sound Duration
+      description: Selecy how long to wait after the sound begins to play until the announcement is made.
+      selector:
+        duration:
+
+
+
+alias: Speaker Announcement
+sequence:
+
+  # This plays the notification sound
+  - service: media_player.play_media
+    target:
+      entity_id: !input speakers
+    data:
+      media_content_id: !input sound
+      media_content_type: audio/mpeg
+    metadata:
+      title: Announce.mp3
+      thumbnail:
+      media_class: music
+      children_media_class:
+    alias: Notification Sound
+
+
+    # Delay after sound
+  - delay: !input sound_duration
+
+
+  # This plays the notification announcement.
+  - service: media_player.play_media
+    target:
+      entity_id: !input speakers
+    data:
+      media_content_id: media-source://tts/edge_tts?message="{{ message }}"&language=en-US-JennyNeural
+      media_content_type: provider
+      
+mode: single
+icon: mdi:bullhorn-variant
